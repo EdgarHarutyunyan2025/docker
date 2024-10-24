@@ -1,0 +1,6 @@
+test
+README.md
+Dockerfile
+tsconfig.build.json
+node_modules
+package-lock.json
