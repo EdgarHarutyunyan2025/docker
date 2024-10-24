@@ -1,0 +1,40 @@
+services:
+  front:
+    build: ./UsermanagmentWeb
+    ports:
+      - "3000:80"
+    env_file:
+      - ./UsermanagmentWeb/.env
+    networks:
+      - web1
+
+  back:
+    build: ./user-managment-api
+    ports:
+      - "7000:7000"
+    depends_on:
+      - db
+    env_file:
+      - ./user-managment-api/.env
+    networks:
+      - web1
+
+  db:
+    image: postgres
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: root
+        POSTGRES_DB: devops_lessons
+    ports:
+      - "5432:5432"
+    volumes:
+      - psdata:/var/lib/postgresql/data
+    networks:
+      - web1
+
+volumes:
+  psdata:
+
+networks:
+  web1:
+    driver: bridge
