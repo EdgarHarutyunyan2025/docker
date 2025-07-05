@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:7000/",
+  baseURL: '/api/v1/users' ,
   headers: {
     "ngrok-skip-browser-warning": "true",
   },
@@ -9,17 +9,17 @@ export const api = axios.create({
 
 /*API calls for User */
 export const getUsers = () => {
-  return api.get("api/v1/users");
+  return api.get("");
 };
 export const createUser = (data) => {
-  return api.post("api/v1/users", data);
+  return api.post("", data);
 };
 export const getUserById = (id) => {
-  return api.get(`api/v1/users/${id}`);
+  return api.get(`/${id}`);
 };
 export const updateUserById = (data) => {
-  return api.patch(`api/v1/users/${data.id}`, data);
+  return api.patch(`/${data.id}`, data);
 };
 export const deleteUserById = (id) => {
-  return api.delete(`api/v1/users/${id}`);
+  return api.delete(`/${id}`);
 };

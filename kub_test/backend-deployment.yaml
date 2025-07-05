@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: back
+  template:
+    metadata:
+      labels:
+        app: back
+    spec:
+      containers:
+      - name: back
+        image: edo1997edo/my_back:v1
+        env:
+          - name: DB_HOST
+            value: db
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_USERNAME
+            value: postgres
+          - name: DB_PASSWORD
+            value: root
+          - name: DB_DATABASE
+            value: devops_lessons
+          - name: PORT
+            value: "7000"
+          - name: HOST
+            value: "0.0.0.0"  # лучше слушать 0.0.0.0 в контейнере, чем localhost
+          - name: NODE_ENV
+            value: development
+          - name: APP_NAME
+            value: Lessons
+          - name: APP_DESCRIPTION
+            value: Devops lessons REST API
+        ports:
+        - containerPort: 7000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: back
+spec:
+  selector:
+    app: back
+  ports:
+    - protocol: TCP
+      port: 7000
+      targetPort: 7000

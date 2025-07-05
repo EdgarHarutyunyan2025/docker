@@ -1,0 +1,90 @@
+#apiversion: apps/v1
+#kind: deployment
+#metadata:
+#  name: postgres
+#  namespace: default
+#spec:
+#  replicas: 1  # обычно база данных работает в одном экземпляре
+#  selector:
+#    matchlabels:
+#      app: postgres
+#  template:
+#    metadata:
+#      labels:
+#        app: postgres
+#    spec:
+#      containers:
+#      - name: postgres
+#        image: postgres:latest  # используем официальный образ postgresql
+#        env:
+#        - name: postgres_user
+#          value: "postgres"  # устанавливаем пользователя для базы данных
+#        - name: postgres_password
+#          value: "root"  # устанавливаем пароль для базы данных
+#        - name: postgres_db
+#          value: "devops_lessons"  # устанавливаем имя базы данных
+#        ports:
+#        - containerport: 5432  # порт для подключения к базе данных
+#        volumemounts:
+#        - name: postgres-data  # монтируем том с этим именем
+#          mountpath: /var/lib/postgresql/data  # путь в контейнере для данных
+#      volumes:
+#      - name: postgres-data  # определяем том с именем postgres-data
+#        persistentvolumeclaim:
+#          claimname: postgres-pvc  # используем pvc, который мы создали
+
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: "postgres"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        env:
+          - name: postgres_user
+            value: "postgres"
+          - name: postgres_password
+            value: "root"
+          - name: postgres_db
+            value: "devops_lessons"
+        ports:
+          - containerPort: 5432
+        volumeMounts:
+          - name: postgres-data
+            mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: standard
+      resources:
+        requests:
+          storage: 1Gi
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  selector:
+    app: postgres  
+  ports:
+    - protocol: TCP
+      port: 5432  
+      targetPort: 5432  
+  type: ClusterIP  

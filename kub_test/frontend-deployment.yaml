@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front
+  namespace: default
+spec:
+  replicas: 2  
+  selector:
+    matchLabels:
+      app: front
+  template:
+    metadata:
+      labels:
+        app: front
+    spec:
+      containers:
+      - name: frontend
+        image: edo1997edo/api_front:v2
+          #        env:   # "REACT_APP_BASE_URL=https://back:7000"
+          # - name: REACT_APP_BASE_URL
+          #  value: https://back:7000
+        ports:
+        - containerPort: 80 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front
+spec:
+  selector:
+    app: front
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 80
+
