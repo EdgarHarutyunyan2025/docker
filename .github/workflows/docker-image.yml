@@ -35,7 +35,7 @@ jobs:
           FULL_TAG="${USER}/${REPO}:v${NEXT_VERSION}"
           echo "next_version=v$NEXT_VERSION" >> $GITHUB_OUTPUT
           echo "full_tag=${FULL_TAG}" >> $GITHUB_OUTPUT
-          echo $NEXT_VERSION
+          echo "$NEXT_VERSION"
 
 
       - name: Build and push Docker image
@@ -44,14 +44,14 @@ jobs:
           context: ./UsermanagmentWeb
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/jsonplaceholder:${{ steps.get_version.outputs.next_version }}
-            ${{ secrets.DOCKER_USERNAME }}/jsonplaceholder:latest
+            ${{ secrets.DOCKER_USERNAME }}/api_front:${{ steps.get_version.outputs.next_version }}
+            ${{ secrets.DOCKER_USERNAME }}/api_front:latest
 
 
 
 
 
-            #
+
             #      - name: Clone devops-repo
             #        uses: actions/checkout@v4
             #        with:
