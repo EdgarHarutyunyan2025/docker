@@ -65,7 +65,7 @@ jobs:
         run: |
           ls -la app/helm-chart/
           echo "${{ needs.build-image.outputs.next_version }}"
-          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.get_version.outputs.next_version }}|' app/helm-chart/values.yaml
+          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.outputs.next_version }}|' app/helm-chart/values.yaml
           cat app/helm-chart/values.yaml
 
 
