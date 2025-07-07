@@ -6,7 +6,7 @@ on:
       - master 
 
 jobs:
-  build-and-push:
+  build-docker-image:
     runs-on: ubuntu-latest
 
     steps:
@@ -49,8 +49,10 @@ jobs:
 
 
 
-
-
+  push-docker-image:
+    needs: [build-docker-image]
+    runs-on: ubuntu-latest
+    steps:
       - name: Clone devops-repo
         uses: actions/checkout@v4
         with:
