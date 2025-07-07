@@ -58,11 +58,11 @@ jobs:
         with:
           repository: EdgarHarutyunyan2025/k8s-project
           token: ${{ secrets.CLONE_REPO_TOKEN }}
-          path: helm-chart
+          path: app
 
       - name: Update image tag in values.yaml
         run: |
-          ls -la helm-chart
+          ls -la app/helm-chart/
  #          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1v9|' values.yaml
  #
  #
