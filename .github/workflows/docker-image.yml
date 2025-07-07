@@ -63,7 +63,7 @@ jobs:
       - name: Update image tag in values.yaml
         run: |
           ls -la app/helm-chart/
-          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ steps.get_version.outputs.next_version }}|' app/helm-chart/values.yaml
+          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.get_version.outputs.next_version }}|' app/helm-chart/values.yaml
 
 
       - name: Commit and push changes
