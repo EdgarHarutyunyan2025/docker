@@ -63,6 +63,7 @@ jobs:
       - name: Update image tag in values.yaml
         run: |
           ls -la app/helm-chart/
+          echo "${{ needs.build-image.get_version.outputs.next_version }}"
           sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.get_version.outputs.next_version }}|' app/helm-chart/values.yaml
 
 
@@ -72,5 +73,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add values.yaml
-          git commit -m "chore: update image tag to ${{ env.NEW_TAG }}"
+          git commit -m "chore: update image tag to ${{ needs.build-image.get_version.outputs.next_version  }}"
           git push
