@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: edo1997edo/api_front:v2
+        image: edo1997edo/api_front:v3
           #        env:   # "REACT_APP_BASE_URL=https://back:7000"
           # - name: REACT_APP_BASE_URL
           #  value: https://back:7000
