@@ -62,7 +62,7 @@ jobs:
 
       - name: Update image tag in values.yaml
         run: |
-          ls -la
+          ls -la helm-chart
  #          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1v9|' values.yaml
  #
  #
