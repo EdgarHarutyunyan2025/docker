@@ -8,7 +8,8 @@ on:
 jobs:
   build-image:
     runs-on: ubuntu-latest
-
+    outputs: 
+      next_version: ${{ steps.get_version.outputs.next_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,7 +64,7 @@ jobs:
       - name: Update image tag in values.yaml
         run: |
           ls -la app/helm-chart/
-          echo "${{ needs.build-image.get_version.outputs.next_version }}"
+          echo "${{ needs.build-image.outputs.next_version }}"
           sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.get_version.outputs.next_version }}|' app/helm-chart/values.yaml
 
 
