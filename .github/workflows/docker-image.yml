@@ -66,6 +66,7 @@ jobs:
           ls -la app/helm-chart/
           echo "${{ needs.build-image.outputs.next_version }}"
           sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.get_version.outputs.next_version }}|' app/helm-chart/values.yaml
+          cat app/helm-chart/values.yaml
 
 
       - name: Commit and push changes
@@ -74,5 +75,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add values.yaml
-          git commit -m "chore: update image tag to ${{ needs.build-image.get_version.outputs.next_version  }}"
+          git commit -m "chore: update image tag to ${{ needs.build-image.outputs.next_version  }}"
           git push
