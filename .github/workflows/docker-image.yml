@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-image:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs: 
       next_version: ${{ steps.get_version.outputs.next_version }}
     steps:
@@ -52,7 +52,7 @@ jobs:
 
   deploy-image:
     needs: [build-image]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Clone devops-repo
         uses: actions/checkout@v4
