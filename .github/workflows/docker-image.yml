@@ -18,7 +18,7 @@ jobs:
         run: docker --version
 
       - name: Docker status
-        run: systemctl status docker
+        run: docker info
 
 
 #      - name: Set up Docker Buildx
