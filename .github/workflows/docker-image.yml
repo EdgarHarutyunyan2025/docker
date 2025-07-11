@@ -53,7 +53,7 @@ jobs:
 
   deploy-image:
     needs: [build-image]
-    runs-on: [self-hosted, linux, ARM64]
+    runs-on: arc-runner-set
     steps:
       - name: Clone devops-repo
         uses: actions/checkout@v4
