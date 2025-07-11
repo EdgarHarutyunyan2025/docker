@@ -25,9 +25,11 @@ jobs:
           sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
           sudo apt-get update
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-          sudo dockerd & 
-          sleep 5  
+          sudo apt-get install -y fuse-overlayfs  # Устанавливаем необходимую зависимость
+          sudo dockerd --host=unix:///var/run/docker.sock --add-runtime=/usr/bin/fuse-overlayfs --privileged &
+          sleep 5
           docker info
+
 
 
 #      - name: Set up Docker Buildx
