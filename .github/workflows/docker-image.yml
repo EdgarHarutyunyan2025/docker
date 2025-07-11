@@ -17,8 +17,9 @@ jobs:
       - name: Docker version
         run: docker --version
 
-      - name: Docker status
-        run: docker info
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
 
 
 #      - name: Set up Docker Buildx
