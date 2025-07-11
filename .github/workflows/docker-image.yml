@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-image:
-    runs-on: self-hosted
+    runs-on: arc-runner-set
     outputs: 
       next_version: ${{ steps.get_version.outputs.next_version }}
     steps:
