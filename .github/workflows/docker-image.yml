@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-image:
-    runs-on: [self-hosted]
+    runs-on: [self-hosted,self-hosted-linux]
     outputs: 
       next_version: ${{ steps.get_version.outputs.next_version }}
     steps:
