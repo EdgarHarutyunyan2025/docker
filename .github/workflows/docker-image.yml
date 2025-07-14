@@ -93,6 +93,7 @@ jobs:
         run: |
           cd app/helmwave
           ls -la
+          sudo apt-get update && sudo apt-get install -y wget
           VERSION=0.42.1
           ARCH=$(uname -m)
           wget -q https://github.com/helmwave/helmwave/releases/download/v$VERSION/helmwave_${VERSION}_linux_${ARCH}.tar.gz -O - | tar -xz
