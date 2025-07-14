@@ -91,6 +91,6 @@ jobs:
 
       - name: helmwave build
         run: |
-          cd helmwave
+          cd app/helmwave
           helmwave build
           helmwave up 
