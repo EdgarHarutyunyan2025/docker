@@ -64,10 +64,10 @@ jobs:
 
       - name: Update image tag in values.yaml
         run: |
-          ls -la app/helm-chart/
+          ls -la app/
+          lls -la
           echo "${{ needs.build-image.outputs.next_version }}"
           sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.outputs.next_version }}|' app/helm-chart/values.yaml
-          cat app/helm-chart/values.yaml
 
 
       - name: Commit and push changes
