@@ -89,5 +89,8 @@ jobs:
           token: ${{ secrets.CLONE_REPO_TOKEN }}
           path: app
 
-      - name: list dir
-        run: ls -la app
+      - name: helmwave build
+        run: |
+          cd helmwave
+          helmwave build
+          helmwave up 
