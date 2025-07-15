@@ -93,3 +93,4 @@ jobs:
         run: |
           cd app/helmwave
           ls -la /usr/local/bin/
+          helmwave -v
