@@ -94,6 +94,7 @@ jobs:
         run: |
           cd app/helmwave
           ls -la
+          cat values/values.yaml
           helmwave up 
 #          helmwave up
 #          helmwave build
