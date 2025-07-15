@@ -94,5 +94,3 @@ jobs:
           cd app/helmwave
           ls -la
           helmwave -v
-          helmwave build 
-          helmwave up
