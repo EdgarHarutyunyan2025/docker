@@ -93,4 +93,8 @@ jobs:
         run: |
           cd app/helmwave
           ls -la
-          helmwave -v
+          echo "$PATH:/usr/local/bin" >> ~/.bashrc
+          source ~/.bashrc
+          which helmwave
+
+
