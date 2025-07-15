@@ -66,13 +66,12 @@ jobs:
         run: |
           ls -la app/
           echo "${{ needs.build-image.outputs.next_version }}"
-          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.outputs.next_version }}|' app/helmwave/values/values.yaml
-#          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.outputs.next_version }}|' app/helm-chart/values.yaml
+          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.outputs.next_version }}|' app/helm-chart/values.yaml
 
 
       - name: Commit and push changes
         run: |
-          cd app/helmwave/values
+          cd app/helm-chart
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add values.yaml
