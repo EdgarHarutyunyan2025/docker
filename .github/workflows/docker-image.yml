@@ -93,5 +93,6 @@ jobs:
         run: |
           cd app/helmwave
           ls -la /usr/local/bin/
-          helmwave up
+          helmwave up --build --progress
+#          helmwave up
 #          helmwave build
