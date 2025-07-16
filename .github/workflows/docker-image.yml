@@ -45,6 +45,7 @@ jobs:
 
 
       - name: Build Docker image
+        id: get_version
         run: |
           ls -la
           echo "next version --> ${{ steps.get_version.outputs.next_version }}"
