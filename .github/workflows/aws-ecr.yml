@@ -6,7 +6,13 @@ on:
       - master 
 
 env:
-  REPO_NAME: "my-project"
+  REPO_NAME            : "my-project"
+  CLONE_REPO_TOKEN     : ${{ secrets.CLONE_REPO_TOKEN }}
+  AWS_REGION           : ${{ secrets.AWS_REGION }}
+  AWS_ACCOUNT_ID       : ${{ secrets.AWS_ACCOUNT_ID }}
+  AWS_ACCESS_KEY_ID    : ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
 
 jobs:
   build-image:
@@ -32,16 +38,16 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: $AWS_REGION
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          aws ecr get-login-password --region $AWS_REGION  | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com
 
       - name: update image verion
         id: get_version
         run: |
-          TAGS=$(aws ecr describe-images --repository-name $REPO_NAME --region ${{ secrets.AWS_REGION }} --query 'imageDetails[].imageTags[]' --output text | tr '\t' '\n' | grep '^v[0-9]\+')
+          TAGS=$(aws ecr describe-images --repository-name $REPO_NAME --region $AWS_REGION  --query 'imageDetails[].imageTags[]' --output text | tr '\t' '\n' | grep '^v[0-9]\+')
           LAST_TAG=$(echo "$TAGS" | sed 's/v//' | sort -nr | head -n1)
           NEXT_VERSION=$((LAST_TAG + 1))
           echo "next_version=v$NEXT_VERSION" >> "$GITHUB_OUTPUT"
@@ -52,11 +58,11 @@ jobs:
           ls -la
           echo "next version --> ${{ steps.get_version.outputs.next_version }}"
           cd ./UsermanagmentWeb
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPO_NAME:${{ steps.get_version.outputs.next_version }} .
+          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:${{ steps.get_version.outputs.next_version }} .
 
       - name: Push Docker image to ECR
         run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPO_NAME:${{ steps.get_version.outputs.next_version }}
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:${{ steps.get_version.outputs.next_version }}
 
 
   deploy-image:
