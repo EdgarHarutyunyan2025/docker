@@ -35,15 +35,24 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
+      - name: update image verion
+        run: |
+          TAGS=$(aws ecr describe-images --repository-name my-project --region eu-central-1 --query 'imageDetails[].imageTags[]' --output text | tr '\t' '\n' | grep '^v[0-9]\+')
+          LAST_TAG=$(echo "$TAGS" | sed 's/v//' | sort -nr | head -n1)
+          NEXT_VERSION=$((LAST_TAG + 1))
+          echo "next_version=v$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+
+
+
       - name: Build Docker image
         run: |
           ls -la
           cd ./UsermanagmentWeb
-          docker build -t 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:v7 .
+          docker build -t 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:${{ steps.get_version.outputs.next_version }} .
 
       - name: Push Docker image to ECR
         run: |
-          docker push 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:v7
+          docker push 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:${{ steps.get_version.outputs.next_version }}
 
 
 
