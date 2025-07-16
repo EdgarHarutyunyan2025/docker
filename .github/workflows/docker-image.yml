@@ -42,12 +42,12 @@ jobs:
           NEXT_VERSION=$((LAST_TAG + 1))
           echo "next_version=v$NEXT_VERSION" >> "$GITHUB_OUTPUT"
           echo $NEXT_VERSION
-          echo ${next_version}
 
 
       - name: Build Docker image
         run: |
           ls -la
+          echo "next version --> ${{ steps.get_version.outputs.next_version }}"
           cd ./UsermanagmentWeb
           docker build -t 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:${{ steps.get_version.outputs.next_version }} .
 
