@@ -1,0 +1,139 @@
+name: Build & Push Docker Image
+
+on:
+  push:
+    branches:
+      - dev 
+
+jobs:
+  build-image:
+    runs-on: arc-runner
+    outputs: 
+      next_version: ${{ steps.get_version.outputs.next_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install awscli -y
+
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+      - name: update image verion
+        id: get_version
+        run: |
+          TAGS=$(aws ecr describe-images --repository-name my-project --region ${{ secrets.AWS_REGION }} --query 'imageDetails[].imageTags[]' --output text | tr '\t' '\n' | grep '^v[0-9]\+')
+          LAST_TAG=$(echo "$TAGS" | sed 's/v//' | sort -nr | head -n1)
+          NEXT_VERSION=$((LAST_TAG + 1))
+          echo "next_version=v$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+          echo $NEXT_VERSION
+
+
+      - name: Build Docker image
+        run: |
+          ls -la
+          echo "next version --> ${{ steps.get_version.outputs.next_version }}"
+          cd ./UsermanagmentWeb
+          docker build -t 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:${{ steps.get_version.outputs.next_version }} .
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:${{ steps.get_version.outputs.next_version }}
+
+
+
+
+
+#      - name: Log in to DockerHub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#
+#      - name: Get latest Docker image version
+#        id: get_version
+#        run: |
+#          USER=${{ secrets.DOCKER_USERNAME }}
+#          REPO=api_front
+#
+#          TAGS=$(curl -s "https://hub.docker.com/v2/repositories/$USER/$REPO/tags/?page_size=100" | jq -r '.results[].name' | grep '^v[0-9]\+' || echo "v0")
+#
+#          LAST_TAG=$(echo "$TAGS" | sed 's/v//' | sort -nr | head -n1)
+#          NEXT_VERSION=$((LAST_TAG + 1))
+#          FULL_TAG="${USER}/${REPO}:v${NEXT_VERSION}"
+#          echo "next_version=v$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+#          echo "full_tag=${FULL_TAG}" >> "$GITHUB_OUTPUT"
+#
+#
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: ./UsermanagmentWeb
+#          push: true
+#          tags: |
+#            ${{ secrets.DOCKER_USERNAME }}/api_front:${{ steps.get_version.outputs.next_version }}
+#            ${{ secrets.DOCKER_USERNAME }}/api_front:latest
+#
+
+
+
+  deploy-image:
+    needs: [build-image]
+    runs-on: arc-runner
+    steps:
+      - name: Clone devops-repo
+        uses: actions/checkout@v4
+        with:
+          repository: EdgarHarutyunyan2025/k8s-project
+          token: ${{ secrets.CLONE_REPO_TOKEN }}
+          path: app
+
+      - name: Update image tag in values.yaml
+        run: |
+          ls -la app/
+          echo "${{ needs.build-image.outputs.next_version }}"
+          sed -i '/frontend:/,/image:/s|\(image:.*:\).*|\1${{ needs.build-image.outputs.next_version }}|' app/helm-chart/values.yaml
+
+
+      - name: Commit and push changes
+        run: |
+          cd app/helm-chart
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add values.yaml
+          git commit -m "chore: update image tag to ${{ needs.build-image.outputs.next_version  }}"
+          git push
+
+  deploy:
+    needs: [build-image,deploy-image]
+    runs-on: arc-runner
+    steps:
+      - name: Clone devops-repo
+        uses: actions/checkout@v4
+        with:
+          repository: EdgarHarutyunyan2025/k8s-project
+          token: ${{ secrets.CLONE_REPO_TOKEN }}
+          path: app
+
+      - name: helmwave build
+        run: |
+          cd app/helmwave
+          ls -la
+          helmwave build
+          helmwave up
