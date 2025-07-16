@@ -5,6 +5,9 @@ on:
     branches:
       - master 
 
+env:
+  REPO-NAME: "my-project"
+
 jobs:
   build-image:
     runs-on: arc-runner
@@ -33,12 +36,12 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
       - name: update image verion
         id: get_version
         run: |
-          TAGS=$(aws ecr describe-images --repository-name my-project --region ${{ secrets.AWS_REGION }} --query 'imageDetails[].imageTags[]' --output text | tr '\t' '\n' | grep '^v[0-9]\+')
+          TAGS=$(aws ecr describe-images --repository-name $REPO-NAME --region ${{ secrets.AWS_REGION }} --query 'imageDetails[].imageTags[]' --output text | tr '\t' '\n' | grep '^v[0-9]\+')
           LAST_TAG=$(echo "$TAGS" | sed 's/v//' | sort -nr | head -n1)
           NEXT_VERSION=$((LAST_TAG + 1))
           echo "next_version=v$NEXT_VERSION" >> "$GITHUB_OUTPUT"
@@ -49,11 +52,11 @@ jobs:
           ls -la
           echo "next version --> ${{ steps.get_version.outputs.next_version }}"
           cd ./UsermanagmentWeb
-          docker build -t 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:${{ steps.get_version.outputs.next_version }} .
+          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPO-NAME:${{ steps.get_version.outputs.next_version }} .
 
       - name: Push Docker image to ECR
         run: |
-          docker push 877680973630.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-project:${{ steps.get_version.outputs.next_version }}
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPO-NAME:${{ steps.get_version.outputs.next_version }}
 
 
   deploy-image:
